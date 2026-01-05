@@ -127,6 +127,12 @@ function formatPHDate(date) {
   });
 }
 
+// ===== SAFE DOM WRITE (PDF FIX) =====
+function safeSetText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = value;
+}
+
 
 function generateInvoiceData() {
   const tax = computeTaxType();
@@ -604,65 +610,71 @@ TAX_DUE_DATES.quarterlyIncome.months.forEach((m, index) => {
 
 
 // ===== PDF EXPORT (PHASE 3) =====
+// ===== PDF EXPORT (PHASE 3 — SAFE) =====
 function exportPDF() {
   const page = document.querySelector("#pdfExport .pdf-page");
+  if (!page) {
+    alert("PDF layout not found. Please reload the page.");
+    return;
+  }
 
-  // 🧠 Compute data
   const tax = computeTaxType();
   const checklist = computeFilingChecklist();
   const dates = generateDueDates();
   const issues = validateCompliance();
-
-    // ===== ELECTRONIC INVOICE REQUIREMENT (RR 11-2025) =====
   const eInvoiceRequired = requiresElectronicInvoice();
 
-const eInvoiceText = eInvoiceRequired
-  ? "Kailangan mag-electronic invoice (RR 11-2025)\nClassification only. Transmission requirements are subject to BIR rollout."
-  : "Manual resibo pa ang pinapayagan (Micro taxpayer)\nClassification only. Transmission requirements are subject to BIR rollout.";
+  const eInvoiceText = eInvoiceRequired
+    ? "Kailangan mag-electronic invoice (RR 11-2025)\nClassification only. Transmission requirements are subject to BIR rollout."
+    : "Manual resibo pa ang pinapayagan (Micro taxpayer)\nClassification only. Transmission requirements are subject to BIR rollout.";
 
-
-
-  // 📝 Populate content
-  document.getElementById("pdfMeta").innerText =
+  // 📝 SAFE POPULATION
+  safeSetText(
+    "pdfMeta",
     `Generated: ${new Date().toLocaleString("en-PH")}\n` +
     `Tax Year: ${answers.taxYear}\n` +
-    `App Version: ${APP_VERSION}`;
+    `App Version: ${APP_VERSION}`
+  );
 
-  document.getElementById("pdfProfile").innerText =
+  safeSetText(
+    "pdfProfile",
     `BIR Registered: ${answers.hasBIR ? "Yes" : "No"}\n` +
     `Online Seller: ${answers.online ? "Yes" : "No"}\n` +
     `Physical Store: ${answers.hasStore ? "Yes" : "No"}\n` +
-    `Declared Income: ₱${answers.incomeAmount.toLocaleString()}`;
+    `Declared Income: ₱${answers.incomeAmount.toLocaleString("en-PH")}`
+  );
 
-document.getElementById("pdfResult").innerText =
-  `${tax.label}\n${tax.notes.summary}\n\n` +
-  `Electronic Invoice Requirement:\n${eInvoiceText}`;
+  safeSetText(
+    "pdfResult",
+    `${tax.label}\n${tax.notes.summary}\n\nElectronic Invoice Requirement:\n${eInvoiceText}`
+  );
 
-
-  document.getElementById("pdfChecklist").innerText =
+  safeSetText(
+    "pdfChecklist",
     `Monthly:\n- ${checklist.monthly.join("\n- ") || "None"}\n\n` +
     `Quarterly:\n- ${checklist.quarterly.join("\n- ") || "None"}\n\n` +
-    `Annual:\n- ${checklist.annual.join("\n- ") || "None"}`;
+    `Annual:\n- ${checklist.annual.join("\n- ") || "None"}`
+  );
 
-  document.getElementById("pdfDates").innerText =
-    dates
-      .map(d =>
-        `${d.label} – ${d.date.toLocaleDateString("en-PH", {
-          month: "long",
-          day: "numeric"
-        })}${d.note ? `\n${d.note}` : ""}`
-      )
-      .join("\n\n");
+  safeSetText(
+    "pdfDates",
+    dates.map(d =>
+      `${d.label} – ${d.date.toLocaleDateString("en-PH", {
+        month: "long",
+        day: "numeric"
+      })}${d.note ? `\n${d.note}` : ""}`
+    ).join("\n\n")
+  );
 
-  document.getElementById("pdfWarnings").innerText =
+  safeSetText(
+    "pdfWarnings",
     issues.length
       ? issues.map(i => `⚠️ ${i}`).join("\n")
-      : "No compliance issues detected.";
+      : "No compliance issues detected."
+  );
 
-  // 🧱 PDF MODE
   document.body.classList.add("pdf-export");
 
-  // 🔥 Clone ONLY the page
   const clone = page.cloneNode(true);
   document.body.appendChild(clone);
 
@@ -670,16 +682,8 @@ document.getElementById("pdfResult").innerText =
     .set({
       filename: `pinoy-tax-compliance-${answers.taxYear}.pdf`,
       margin: 0,
-      html2canvas: {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: true
-      },
-      jsPDF: {
-        unit: "px",
-        format: [794, clone.scrollHeight],
-        orientation: "portrait"
-      }
+      html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true },
+      jsPDF: { unit: "px", format: [794, clone.scrollHeight], orientation: "portrait" }
     })
     .from(clone)
     .save()
@@ -692,67 +696,73 @@ document.getElementById("pdfResult").innerText =
 function exportInvoicePDF() {
   const invoice = generateInvoiceData();
   const page = document.querySelector("#invoicePdfExport .pdf-page");
+
+  if (!page) {
+    alert("Invoice PDF layout not found. Please reload the page.");
+    return;
+  }
+
   const eInvoiceRequired = requiresElectronicInvoice();
 
-const invoiceTypeLabel = eInvoiceRequired
-  ? "Electronic Invoice (RR 11-2025)\nClassification only. Transmission requirements are subject to BIR rollout."
-  : "Manual Invoice – Micro Taxpayer (Exempt)\nClassification only. Transmission requirements are subject to BIR rollout.";
+  const invoiceTypeLabel = eInvoiceRequired
+    ? "Electronic Invoice (RR 11-2025)\nClassification only. Transmission requirements are subject to BIR rollout."
+    : "Manual Invoice – Micro Taxpayer (Exempt)\nClassification only. Transmission requirements are subject to BIR rollout.";
 
-
-
-  // ===== SAFE VALUES =====
   const grossIncome = invoice.income?.gross || 0;
   const taxRate = invoice.tax?.rate || 0;
   const taxDue = invoice.income?.taxDue || 0;
 
-  // ===== META =====
-  document.getElementById("invoicePdfMeta").innerText =
+  safeSetText(
+    "invoicePdfMeta",
     `Invoice ID: ${invoice.invoiceId}\n` +
     `Issued: ${new Date(invoice.issuedAt).toLocaleString("en-PH")}\n` +
     `Tax Year: ${invoice.taxYear}\n` +
-    `App Version: ${invoice.app.version}`;
+    `App Version: ${invoice.app.version}`
+  );
 
-  // ===== PROFILE =====
-  document.getElementById("invoicePdfProfile").innerText =
+  safeSetText(
+    "invoicePdfProfile",
     `BIR Registered: ${invoice.taxpayerProfile.birRegistered ? "Yes" : "No"}\n` +
     `Online Seller: ${invoice.taxpayerProfile.onlineSeller ? "Yes" : "No"}\n` +
     `Physical Store: ${invoice.taxpayerProfile.physicalStore ? "Yes" : "No"}\n` +
-    `Declared Income: ₱${grossIncome.toLocaleString("en-PH")}`;
+    `Declared Income: ₱${grossIncome.toLocaleString("en-PH")}`
+  );
 
-  // ===== TAX SUMMARY =====
-    document.getElementById("invoicePdfResult").innerText =
-  `${invoice.tax.label}\n` +
-  `Invoice Type: ${invoiceTypeLabel}\n` +
-  `Rate: ${(taxRate * 100).toFixed(0)}%\n` +
-  `Estimated annual tax (reference): ₱${taxDue.toLocaleString("en-PH")}`;
+  safeSetText(
+    "invoicePdfResult",
+    `${invoice.tax.label}\nInvoice Type: ${invoiceTypeLabel}\n` +
+    `Rate: ${(taxRate * 100).toFixed(0)}%\n` +
+    `Estimated annual tax (reference): ₱${taxDue.toLocaleString("en-PH")}`
+  );
 
-
-  // ===== INCOME & TAX DUE (FIXED) =====
-  document.getElementById("invoicePdfAmounts").innerText =
+  safeSetText(
+    "invoicePdfAmounts",
     `Gross Income: ₱${grossIncome.toLocaleString("en-PH")}\n` +
     `Tax Rate: ${(taxRate * 100).toFixed(0)}%\n` +
-    `Estimated tax based on declared income (annual reference): ₱${taxDue.toLocaleString("en-PH")}`;
+    `Estimated tax based on declared income (annual reference): ₱${taxDue.toLocaleString("en-PH")}`
+  );
 
-  // ===== CHECKLIST =====
-  document.getElementById("invoicePdfChecklist").innerText =
+  safeSetText(
+    "invoicePdfChecklist",
     `Monthly:\n- ${invoice.filing.monthly.length ? invoice.filing.monthly.join("\n- ") : "None"}\n\n` +
     `Quarterly:\n- ${invoice.filing.quarterly.length ? invoice.filing.quarterly.join("\n- ") : "None"}\n\n` +
-    `Annual:\n- ${invoice.filing.annual.length ? invoice.filing.annual.join("\n- ") : "None"}`;
+    `Annual:\n- ${invoice.filing.annual.length ? invoice.filing.annual.join("\n- ") : "None"}`
+  );
 
-  // ===== DUE DATES =====
-  document.getElementById("invoicePdfDates").innerText =
-    invoice.dueDates.map(d => `${d.label} – ${d.date}`).join("\n");
+  safeSetText(
+    "invoicePdfDates",
+    invoice.dueDates.map(d => `${d.label} – ${d.date}`).join("\n")
+  );
 
-  // ===== WARNINGS =====
-  document.getElementById("invoicePdfWarnings").innerText =
+  safeSetText(
+    "invoicePdfWarnings",
     invoice.compliance.issues.length
       ? invoice.compliance.issues.map(i => `⚠️ ${i}`).join("\n")
-      : "No compliance issues detected.";
+      : "No compliance issues detected."
+  );
 
-  // ===== PDF MODE =====
   document.body.classList.add("pdf-export");
 
-  // 🔥 CLONE ONLY THE PAGE (CRITICAL)
   const clone = page.cloneNode(true);
   document.body.appendChild(clone);
 
@@ -760,16 +770,8 @@ const invoiceTypeLabel = eInvoiceRequired
     .set({
       filename: `invoice-${invoice.invoiceId}.pdf`,
       margin: 0,
-      html2canvas: {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: true
-      },
-      jsPDF: {
-        unit: "px",
-        format: [794, clone.scrollHeight],
-        orientation: "portrait"
-      }
+      html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true },
+      jsPDF: { unit: "px", format: [794, clone.scrollHeight], orientation: "portrait" }
     })
     .from(clone)
     .save()
@@ -778,6 +780,7 @@ const invoiceTypeLabel = eInvoiceRequired
       document.body.classList.remove("pdf-export");
     });
 }
+
 
 
 
@@ -922,3 +925,4 @@ if (whyBtn && whyContent) {
     whyContent.style.display = isVisible ? "none" : "block";
   });
 }
+
