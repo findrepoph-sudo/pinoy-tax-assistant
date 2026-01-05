@@ -1,14 +1,13 @@
-const CACHE_NAME = "pinoy-tax-assistant-v2";
+const CACHE_NAME = "pinoy-tax-assistant-v3";
 
 const ASSETS_TO_CACHE = [
-  "/", 
+  "/",
   "/index.html",
   "/style.css",
   "/script.js",
   "/manifest.json",
   "/icons/icon-192.png",
-  "/icons/icon-512.png",
-  "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+  "/icons/icon-512.png"
 ];
 
 // ===== INSTALL =====
@@ -33,23 +32,30 @@ self.addEventListener("activate", event => {
   self.clients.claim();
 });
 
-// ===== FETCH (OFFLINE-FIRST) =====
+// ===== FETCH =====
 self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
+  const request = event.request;
+
+  // Only handle GET
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+
+  // ❌ NEVER cache external/CDN resources (fixes PDF export)
+  if (url.origin !== self.location.origin) {
+    return;
+  }
 
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) return cachedResponse;
+    caches.match(request).then(cached => {
+      if (cached) return cached;
 
-      return fetch(event.request).then(networkResponse => {
-        // Cache new requests dynamically
+      return fetch(request).then(response => {
         return caches.open(CACHE_NAME).then(cache => {
-          cache.put(event.request, networkResponse.clone());
-          return networkResponse;
+          cache.put(request, response.clone());
+          return response;
         });
       });
-    }).catch(() => {
-      // Optional: fallback could be added here later
     })
   );
 });
