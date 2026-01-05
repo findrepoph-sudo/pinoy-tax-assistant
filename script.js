@@ -678,20 +678,33 @@ function exportPDF() {
   const clone = page.cloneNode(true);
   document.body.appendChild(clone);
 
-  html2pdf()
-    .set({
-      filename: `pinoy-tax-compliance-${answers.taxYear}.pdf`,
-      margin: 0,
-      html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true },
-      jsPDF: { unit: "px", format: [794, clone.scrollHeight], orientation: "portrait" }
-    })
-    .from(clone)
-    .save()
-    .then(() => {
-      clone.remove();
-      document.body.classList.remove("pdf-export");
-    });
-}
+
+
+
+html2pdf()
+  .set({
+    filename: `pinoy-tax-compliance-${answers.taxYear}.pdf`,
+    margin: 12,
+    pagebreak: { mode: ["css", "legacy"] },
+    html2canvas: {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: true
+    },
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait"
+    }
+  })
+  .from(clone)
+  .save()
+  .then(() => {
+    clone.remove();
+    document.body.classList.remove("pdf-export");
+  });
+
+
 
 function exportInvoicePDF() {
   const invoice = generateInvoiceData();
@@ -766,20 +779,29 @@ function exportInvoicePDF() {
   const clone = page.cloneNode(true);
   document.body.appendChild(clone);
 
+
   html2pdf()
-    .set({
-      filename: `invoice-${invoice.invoiceId}.pdf`,
-      margin: 0,
-      html2canvas: { scale: 2, backgroundColor: "#ffffff", useCORS: true },
-      jsPDF: { unit: "px", format: [794, clone.scrollHeight], orientation: "portrait" }
-    })
-    .from(clone)
-    .save()
-    .then(() => {
-      clone.remove();
-      document.body.classList.remove("pdf-export");
-    });
-}
+  .set({
+    filename: `invoice-${invoice.invoiceId}.pdf`,
+    margin: 12,
+    pagebreak: { mode: ["css", "legacy"] },
+    html2canvas: {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: true
+    },
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait"
+    }
+  })
+  .from(clone)
+  .save()
+  .then(() => {
+    clone.remove();
+    document.body.classList.remove("pdf-export");
+  });
 
 
 
@@ -925,4 +947,5 @@ if (whyBtn && whyContent) {
     whyContent.style.display = isVisible ? "none" : "block";
   });
 }
+
 
