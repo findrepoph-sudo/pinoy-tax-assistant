@@ -703,7 +703,7 @@ html2pdf()
     clone.remove();
     document.body.classList.remove("pdf-export");
   });
-
+}
 
 
 function exportInvoicePDF() {
@@ -803,7 +803,7 @@ function exportInvoicePDF() {
     document.body.classList.remove("pdf-export");
   });
 
-
+}
 
 
 function renderCalendarPreview() {
@@ -947,5 +947,6 @@ if (whyBtn && whyContent) {
     whyContent.style.display = isVisible ? "none" : "block";
   });
 }
+
 
 
