@@ -1,0 +1,162 @@
+/* ===============================
+   BASE APP STYLES
+================================ */
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f6f6f6;
+  min-height: 100vh;
+}
+
+/* App container (UI ONLY) */
+#app {
+  max-width: 420px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* ===============================
+   PDF MODE RESET (CRITICAL)
+================================ */
+
+body.pdf-export {
+  background: white;
+}
+
+body.pdf-export #app {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* ===============================
+   HEADINGS
+================================ */
+
+h1 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+#progress {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+#question {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+/* ===============================
+   BUTTONS
+================================ */
+
+button {
+  width: 100%;
+  padding: 16px;
+  margin-top: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background: #111;
+  color: white;
+  cursor: pointer;
+}
+
+#backBtn,
+#noBtn,
+#pdfBtn {
+  background: #fff;
+  color: #111;
+  border: 1px solid #ccc;
+}
+
+#resetBtn {
+  background: #eaeaea;
+  color: #111;
+}
+
+/* ===============================
+   INPUTS
+================================ */
+
+#incomeInput {
+  width: 100%;
+  height: 56px;              /* match button height */
+  padding: 0 16px;           /* horizontal only */
+  font-size: 16px;
+  line-height: 56px;         /* vertical centering */
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* ===============================
+   RESULTS
+================================ */
+
+#result {
+  margin-top: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* ===============================
+   PDF CONTAINERS (HIDDEN SAFELY)
+================================ */
+
+#pdfExport,
+#invoicePdfExport {
+  display: none;
+}
+
+/* ===============================
+   PDF PAGE LAYOUT (A4)
+================================ */
+
+.pdf-page {
+  width: 794px; /* A4 width */
+  margin: 0 auto;
+  padding: 32px;
+  box-sizing: border-box;
+
+  font-family: Arial, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000;
+}
+
+/* Section spacing */
+.pdf-page h2 {
+  margin: 0 0 12px;
+}
+
+.pdf-page h3 {
+  margin: 24px 0 8px;
+}
+
+.pdf-page pre {
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Footer note */
+.pdf-page small {
+  display: block;
+  margin-top: 24px;
+  color: #555;
+}

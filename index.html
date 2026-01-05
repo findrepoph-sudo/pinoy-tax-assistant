@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tl">
+  <head>
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#111111" />
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pinoy Tax Assistant</title>
+
+    <link rel="stylesheet" href="/style.css" />
+
+    <!-- PDF Export (Phase 3) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- App Script -->
+    <script src="/script.js" defer></script>
+  </head>
+
+  <body>
+    <main id="app">
+      <h1>Pinoy Tax Assistant</h1>
+
+      <!-- Progress -->
+      <p id="progress">Step 1 of 5</p>
+
+      <!-- Question -->
+      <p id="question">May BIR registration ka na ba?</p>
+
+      <!-- Back -->
+      <button id="backBtn" type="button" style="display: none">
+        ← Bumalik
+      </button>
+
+      <!-- ===== RESULT-ONLY CONTROLS ===== -->
+      <section id="calendarControls" style="display:none; margin: 12px 0">
+        <div style="margin-bottom:12px">
+          <label for="taxYear">📆 Taon ng Filing</label>
+          <select id="taxYear">
+            <option value="2024">2024</option>
+            <option value="2025" selected>2025</option>
+            <option value="2026">2026</option>
+          </select>
+        </div>
+
+        <fieldset>
+          <legend>⏰ Mga Paalala</legend>
+
+          <label>
+            <input type="checkbox" id="reminder7" checked />
+            7 araw bago ang due date
+          </label><br />
+
+          <label>
+            <input type="checkbox" id="reminder3" checked />
+            3 araw bago ang due date
+          </label><br />
+
+          <label>
+            <input type="checkbox" id="reminder0" checked />
+            Sa mismong due date
+          </label>
+        </fieldset>
+      </section>
+
+      <!-- Income Input -->
+      <input
+        type="number"
+        id="incomeInput"
+        placeholder="Hal. 500000"
+        min="1"
+        inputmode="numeric"
+        style="display: none"
+      />
+
+      <!-- Yes / No -->
+      <button id="yesBtn" type="button">Oo</button>
+      <button id="noBtn" type="button">Hindi</button>
+
+      <!-- Continue -->
+      <button id="nextBtn" type="button" style="display: none">
+        I-continue
+      </button>
+
+      <!-- Result -->
+      <p id="result"></p>
+
+      <!-- Why Am I Classified -->
+      <div id="whyToggle" style="display:none; margin-top:12px;">
+        <button
+          type="button"
+          id="whyBtn"
+          style="
+            background:#fff;
+            border:1px solid #ccc;
+            color:#111;
+            font-size:14px;
+            padding:10px;
+            border-radius:6px;
+          "
+        >
+          ℹ️ Bakit ganito ang classification?
+        </button>
+
+        <div
+          id="whyContent"
+          style="
+            display:none;
+            margin-top:8px;
+            font-size:14px;
+            line-height:1.5;
+            color:#444;
+            background:#f8f8f8;
+            padding:12px;
+            border-radius:6px;
+          "
+        ></div>
+      </div>
+
+      <!-- Calendar Preview -->
+      <section id="calendarPreview" style="display: none; margin-top: 16px">
+        <h3>📅 Mga Nalalapit na Due Date</h3>
+        <ul id="calendarList"></ul>
+      </section>
+
+      <!-- Actions -->
+      <button id="calendarBtn" type="button" style="display: none">
+        📅 I-export sa Calendar
+      </button>
+
+      <button id="pdfBtn" type="button" style="display: none">
+        📄 Export Compliance Summary (PDF)
+      </button>
+
+      <button id="invoiceJsonBtn" type="button" style="display: none">
+        🧾 Export Invoice (JSON)
+      </button>
+
+      <button id="invoicePdfBtn" type="button" style="display: none">
+        📄 Export Invoice (PDF)
+      </button>
+
+      <!-- Disclaimer -->
+      <small style="display: block; margin-top: 16px; color: #666">
+        ⚠️ Gabay lamang ito at hindi kapalit ng payo ng accountant o BIR.
+        Ang 8% income tax option ay kailangang piliin at ideklara nang tama
+        sa BIR at hindi maaaring baguhin sa loob ng parehong taxable year.
+      </small>
+
+      <!-- Reset -->
+      <button id="resetBtn" type="button" style="display: none">
+        Simulan Ulit
+      </button>
+
+      <!-- ===== PDF EXPORT LAYOUT ===== -->
+      <section id="pdfExport">
+        <div class="pdf-page">
+          <h2>Pinoy Tax Assistant — Compliance Summary</h2>
+
+          <p id="pdfMeta"></p>
+
+          <h3>Tax Profile</h3>
+          <pre id="pdfProfile"></pre>
+
+          <h3>Tax Result</h3>
+          <pre id="pdfResult"></pre>
+
+          <h3>Filing Checklist</h3>
+          <pre id="pdfChecklist"></pre>
+
+          <h3>Due Dates</h3>
+          <pre id="pdfDates"></pre>
+
+          <h3>Compliance Notes</h3>
+          <pre id="pdfWarnin
