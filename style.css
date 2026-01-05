@@ -133,7 +133,7 @@ button {
   width: 210mm;           /* A4 width in mm */
   min-height: auto;       /* IMPORTANT: do not force height */
   margin: 0 auto;
-  padding: 20mm;          /* Proper print margins */
+  padding: 14mm;          /* Proper print margins */
   box-sizing: border-box;
 
   font-family: Arial, system-ui, sans-serif;
@@ -166,5 +166,6 @@ button {
   margin-top: 24px;
   color: #555;
 }
+
 
 
