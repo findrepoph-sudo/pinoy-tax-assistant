@@ -118,8 +118,12 @@ button {
 
 #pdfExport,
 #invoicePdfExport {
-  display: none;
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  visibility: hidden;
 }
+
 
 /* ===============================
    PDF PAGE LAYOUT (A4)
@@ -160,3 +164,4 @@ button {
   margin-top: 24px;
   color: #555;
 }
+
