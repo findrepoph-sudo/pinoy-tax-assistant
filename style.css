@@ -130,9 +130,10 @@ button {
 ================================ */
 
 .pdf-page {
-  width: 794px; /* A4 width */
+  width: 210mm;           /* A4 width in mm */
+  min-height: auto;       /* IMPORTANT: do not force height */
   margin: 0 auto;
-  padding: 32px;
+  padding: 20mm;          /* Proper print margins */
   box-sizing: border-box;
 
   font-family: Arial, system-ui, sans-serif;
@@ -140,6 +141,7 @@ button {
   line-height: 1.6;
   color: #000;
 }
+
 
 /* Section spacing */
 .pdf-page h2 {
@@ -164,4 +166,5 @@ button {
   margin-top: 24px;
   color: #555;
 }
+
 
